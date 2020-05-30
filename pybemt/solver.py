@@ -147,10 +147,10 @@ class Rotor: # struct of arrays instead of array of structs
         except NoOptionError:
             dr = self.n_sections*[float(r[1]) - float(r[0])]
         
-        p   = cfg.get(name, 'pitch').split()
+        self.alpha = [float(p) for p in cfg.get(name, 'pitch').split()]
         self.sections = []
         for i in range(self.n_sections): 
-            sec = Section(load_airfoil(s[i]), float(r[i]), float(dr[i]), radians(float(p[i])), float(c[i]), self, mode)
+            sec = Section(load_airfoil(s[i]), float(r[i]), float(dr[i]), radians(self.alpha[i]), float(c[i]), self, mode)
             self.sections.append(sec)
         
         self.radius_hub = cfg.getfloat(name,'radius_hub')
@@ -190,6 +190,7 @@ class Solver:
         else:
             self.coaxial = False
         
+
         # Rotor
         if cfg.has_section('turbine'):
             self.mode = 'turbine'
@@ -209,7 +210,7 @@ class Solver:
         # Coaxial
         if self.coaxial:
             self.rpm2 = cfg.getfloat('case','rpm2')
-            self.rotor2 = Rotor(cfg, 'rotor2')
+            self.rotor2 = Rotor(cfg, 'rotor2', self.mode)
             self.zD = cfg.getfloat('case','dz')/self.rotor.diameter
             self.T2 = 0
             self.Q2 = 0
@@ -217,6 +218,7 @@ class Solver:
 
         # Solver
         self.solver = 'bisect'
+        #self.solver = 'brute'
        
     def rotor_coeffs(self, T, Q, P):
         """ Calculate non-dimensional coefficients. For propellers,
@@ -224,12 +226,16 @@ class Solver:
         to 
         """
         D = self.rotor.diameter
+        R = 0.5*D
         rho = self.fluid.rho
         n = self.rpm/60.0
         J = self.v_inf/(n*D)
+        omega = self.rpm*2*pi/60.0
  
         CT = T/(rho*n**2*D**4)
+        CT = T/(rho*(omega*R)**2*(pi*R)**2)
         CQ = Q/(rho*n**2*D**5)
+        CQ = Q/(rho*(omega*R)**2*(pi*R)**3)
         CP = 2*pi*CQ
 
         if J==0.0:
@@ -252,6 +258,7 @@ class Solver:
         CP = P/(0.5*rho*A*V**3)
 
         return TSR, CP, CT
+
         
     def run_sweep(self, parameter, n, low, high):
         """Utility function to run a sweep of a single parameter."""
@@ -286,6 +293,7 @@ class Solver:
         return df, sections
     
     def solve(self, rotor, rpm, v_inflow, r_inflow):
+        rotor.precalc()
 
         omega = rpm*2*pi/60.0
         # Axial momentum (thrust)
@@ -316,7 +324,6 @@ class Solver:
         return T, Q, P
  
     def run(self):
-
         R = 0.5*self.rotor.diameter
         self.T, self.Q, self.P = self.solve(self.rotor, self.rpm, self.v_inf, R)
        
@@ -341,7 +348,7 @@ class Solver:
             Cs= 0.75 # awesome for 28/28
             Cs=0.625
             # velocity from momentum theory
-            self.v_s = Cs*sqrt(2*self.T/(self.rho*A))
+            self.v_s = Cs*sqrt(2*self.T/(self.fluid.rho*A))
             print('Coaxial rad/vel',self.r_s, self.v_s)
             
             self.T2, self.Q2, self.P2 = self.solve(self.rotor2, self.rpm2, self.v_s, self.r_s)
