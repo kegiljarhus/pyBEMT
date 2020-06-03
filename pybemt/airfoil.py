@@ -35,9 +35,6 @@ class Airfoil:
         pl.xlabel('Angle of attack')
         pl.ylabel('Drag and lift coefficients')
         pl.legend(('$C_l$','$C_d$'))
-        #alphas = np.linspace(self.alpha_[0], self.alpha_[-1], 2*len(self.alpha_))
-        #pl.plot(alphas, [self.Cl(radians(a)) for a in alphas], 'C1--')
-        #pl.plot(alphas, [self.Cd(radians(a)) for a in alphas], 'C2--')
         
         
 def load_airfoil(name):
@@ -53,26 +50,14 @@ def load_airfoil(name):
     
     a.Cl_func = interp1d(a.alpha_, a.Cl_, kind='quadratic')
     a.Cd_func = interp1d(a.alpha_, a.Cd_, kind='quadratic')
-
-    for i in range(5,len(a.alpha_)):
-        C0 = a.Cl_[i-1]
-        C1 = a.Cl_[i]
-        if C0 < 0 and C1 >= 0:
-            a0 = a.alpha_[i-1]
-            a1 = a.alpha_[i]
-            a.zero_lift =0.0 # a0 + (0.0 - C0)*(a1 - a0)/(C1 - C0)
-            break
             
-    # print('zero',a.zero_lift)
-    
     return a
 
 
 if __name__ == '__main__':
-    #name = sys.argv[-1]
-    for i,name in enumerate(sys.argv[1:]):
-        print('name',name)
-        a = load_airfoil(name)
-        a.plot('C%i'%i)
+    # Load and plot airfoil from command line
+    name = sys.argv[-1]
+    a = load_airfoil(name)
+    a.plot()
 
     pl.show()
