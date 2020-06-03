@@ -4,9 +4,9 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+from scipy import optimize
 from configparser import SafeConfigParser, NoOptionError
 from math import radians, degrees, sqrt, cos, sin, atan2, atan, pi, acos, exp
-from scipy.optimize import bisect
 from .airfoil import load_airfoil
 
 
@@ -312,7 +312,13 @@ class Solver:
             if self.solver == 'brute':
                 phi = self.brute_solve(sec, v, omega)
             else:
-                phi = bisect(sec.func, 0.01*pi, 0.9*pi, args=(v, omega))
+                try:
+                    phi = optimize.bisect(sec.func, 0.01*pi, 0.9*pi, args=(v, omega))
+                except ValueError as e:
+                    print(e)
+                    print('Bisect failed, switching to brute solver')
+                    phi = self.brute_solve(sec, v, omega)
+
             
             dT, dQ = sec.forces(phi, v, omega, self.fluid)
 
@@ -359,7 +365,8 @@ class Solver:
 
 
     def brute_solve(self, sec, v, omega, n=3600):
-        """ Solve by a simple brute force procedure, iterating through all
+        """ 
+        Solve by a simple brute force procedure, iterating through all
         possible angles and selecting the one with lowest residual.
         """
         resid = np.zeros(n)
@@ -373,8 +380,35 @@ class Solver:
         i = np.argmin(abs(resid))
         return phis[i]
 
+    def optimize_pitch(self):
+        """
+        Optimize rotor pitch for either maximum thrust (propeller) or maximum power (turbine)
+        using a genetic evolution algorithm.
+
+        This is intended as an example of how optimization can be done using the scipy.optimize
+        package. The overall procedure can be readily modified to optimize for other parameters,
+        e.g. a parametrized function for the pitch, or for a parameter sweep instead of 
+        a single parameter set.
+
+        return: Array of optimized pitches
+        """
+
+        def run_bemt(x):
+            print('Current iteration:',x)
+            for sec,pitch in zip(self.rotor.sections, x):
+                sec.pitch = np.radians(pitch)
+
+            T,Q,P,df = self.run()
+            if self.mode == 'turbine':
+                return -P
+            else:
+                return -T
  
-       
-        
+        x = [sec.pitch for sec in self.rotor.sections]
+        bounds = [(0,30)]*len(x)
+
+        result = optimize.differential_evolution(run_bemt, bounds, tol=1e-1)
+
+        return result 
         
         
