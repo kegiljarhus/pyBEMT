@@ -10,7 +10,7 @@ from scipy.optimize import bisect
 from .airfoil import load_airfoil
 
 
-class Section: # TODO - is this stupid? Just have arrays instead?
+class Section: 
     def __init__(self, airfoil, radius, width, pitch, chord, rotor, mode):
         self.airfoil = airfoil
         self.radius = radius
@@ -159,6 +159,7 @@ class Rotor: # struct of arrays instead of array of structs
 
     def precalc(self):
         self.blade_radius = 0.5*self.diameter
+        self.area = pi*self.blade_radius**2
 
     def sections_dataframe(self):
         columns = ['radius','chord','pitch','Cl','Cd','dT','dQ','F','a','ap','Re']
@@ -218,12 +219,14 @@ class Solver:
 
         # Solver
         self.solver = 'bisect'
-        #self.solver = 'brute'
+        self.Cs = 0.625
+        if cfg.has_section('solver'):
+            self.solver = cfg.get('solver','solver')
+            if cfg.has_option('solver', 'Cs'):
+                self.Cs = cfg.getfloat('solver','Cs')
        
     def rotor_coeffs(self, T, Q, P):
-        """ Calculate non-dimensional coefficients. For propellers,
-        we typically use the advance ratio,
-        to 
+        """ Calculate non-dimensional coefficients for rotor. 
         """
         D = self.rotor.diameter
         R = 0.5*D
@@ -233,9 +236,7 @@ class Solver:
         omega = self.rpm*2*pi/60.0
  
         CT = T/(rho*n**2*D**4)
-        CT = T/(rho*(omega*R)**2*(pi*R)**2)
         CQ = Q/(rho*n**2*D**5)
-        CQ = Q/(rho*(omega*R)**2*(pi*R)**3)
         CP = 2*pi*CQ
 
         if J==0.0:
@@ -243,19 +244,15 @@ class Solver:
         else:
             eta = (CT/CP)*J
 
-        # TODO - coaxial???
-        
         return J, CT, CQ, CP, eta
 
     def turbine_coeffs(self, T, Q, P):
-        R = 0.5*self.rotor.diameter
-        A = pi*R**2
         rho = self.fluid.rho
         V = self.v_inf
         omega = self.rpm*2*pi/60.0
-        TSR = omega*R/V
-        CT = T/(0.5*rho*A*V**2)
-        CP = P/(0.5*rho*A*V**3)
+        TSR = omega*self.rotor.blade_radius/V
+        CT = T/(0.5*rho*self.rotor.area*V**2)
+        CP = P/(0.5*rho*self.rotor.area*V**3)
 
         return TSR, CP, CT
 
@@ -266,9 +263,13 @@ class Solver:
         if self.mode == 'turbine':
             df = pd.DataFrame(columns = [parameter, 'T', 'Q', 'P', 'TSR', 'CT', 'CP'], index=range(n))
         else:
-            df = pd.DataFrame(columns = [parameter, 'T', 'Q', 'P', 'J', 'CT', 'CQ', 'CP', 'eta'], index=range(n))
             if self.coaxial:
-                df2 = pd.DataFrame(columns = [parameter, 'T', 'Q', 'P', 'J', 'CT', 'CQ', 'CP', 'eta'], index=range(n))
+                cols = [parameter, 'T', 'Q', 'P', 'J', 'CT', 'CQ', 'CP', 'eta', 
+                        'CT2', 'CQ2', 'CP2', 'eta2']
+            else:
+                cols = [parameter, 'T', 'Q', 'P', 'J', 'CT', 'CQ', 'CP', 'eta']
+
+            df = pd.DataFrame(columns = cols, index=range(n))
 
         sections = []
         for i,p in enumerate((np.linspace(low, high, n))):
@@ -282,7 +283,8 @@ class Solver:
                 if self.coaxial:
                     T,Q,P,sec_df,T2,Q2,P2,sec_df2 = self.run()
                     J,CT,CQ,CP,eta = self.rotor_coeffs(T, Q, P)
-                    df.iloc[i] = [p, T, Q, P, T2, Q2, P2, J, CT, CQ, CP, eta]
+                    J,CT2,CQ2,CP2,eta = self.rotor_coeffs(T2, Q2, P2)
+                    df.iloc[i] = [p, T, Q, P, T2, Q2, P2, J, CT, CQ, CP, eta, CT2, CP2, eta2]
                 else:
                     T,Q,P,sec_df = self.run()
                     J,CT,CQ,CP,eta = self.rotor_coeffs(T, Q, P)
@@ -322,10 +324,18 @@ class Solver:
         P = Q*omega  
 
         return T, Q, P
+
+    def slipstream(self):
+        # Slipstream properties
+
+        r_s = self.rotor.blade_radius/sqrt(2.0)
+        v_s = self.Cs*sqrt(2*self.T/(self.fluid.rho*self.rotor.area))
+
+        return r_s, v_s
+
  
     def run(self):
-        R = 0.5*self.rotor.diameter
-        self.T, self.Q, self.P = self.solve(self.rotor, self.rpm, self.v_inf, R)
+        self.T, self.Q, self.P = self.solve(self.rotor, self.rpm, self.v_inf, self.rotor.diameter)
        
         print('--- Results ---')
         print('Trust (N):\t',self.T)
@@ -334,32 +344,16 @@ class Solver:
 
         # Coaxial calculaction
         if self.coaxial:
-            # Slipstream properties
-            Cs = 1.2
-            Cs = 1.0
-            # zD 32: 0.14
-            # zD 28: 0.16
-            self.r_s = Cs*R/sqrt(2.0)
-            #A = pi*(self.r_s**2 - self.rotor.radius_hub**2)
-            A = pi*R**2
-            #Cs = 5.0 # 0.75 bra for 2828, 1.1 for 3232
-            #Cs = 3.0
-            Cs= 0.5 # awesome for 28/32
-            Cs= 0.75 # awesome for 28/28
-            Cs=0.625
-            # velocity from momentum theory
-            self.v_s = Cs*sqrt(2*self.T/(self.fluid.rho*A))
-            print('Coaxial rad/vel',self.r_s, self.v_s)
-            
+            self.r_s, self.v_s = self.slipstream()
+           
             self.T2, self.Q2, self.P2 = self.solve(self.rotor2, self.rpm2, self.v_s, self.r_s)
 
             print('Trust 2 (N):\t',self.T2)
             print('Torque 2 (Nm):\t',self.Q2)
             print('Power 2 (W):\t',self.P2)
 
-        
-        if self.coaxial:
             return self.T, self.Q, self.P, self.rotor.sections_dataframe(), self.T2, self.Q2, self.P2, self.rotor2.sections_dataframe()
+        
         else:
             return self.T, self.Q, self.P, self.rotor.sections_dataframe()
 
