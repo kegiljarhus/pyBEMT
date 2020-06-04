@@ -156,7 +156,7 @@ class Section:
 
         # From momentum theory
         # dT = 4*pi*rho*r*self.v_inf**2*(1 + a)*a*F
-        # dQ = 4*pi*rho*r**3*self.v_inf*(1 + a)*a*self.omega*F
+        # dQ = 4*pi*rho*r**3*self.v_inf*(1 + a)*ap*self.omega*F
                 
         return self.dT, self.dQ
         
