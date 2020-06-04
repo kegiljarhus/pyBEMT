@@ -32,10 +32,11 @@ The package requires the following libraries:
 - pandas
 - sphinx (for documentation)
 
-Examples
---------
+Documentation
+-------------
 
 Examples on how to use the package are given in the examples directory.
+Documentation is hosted on https://pybemt.readthedocs.io/ 
 
 License
 -------
