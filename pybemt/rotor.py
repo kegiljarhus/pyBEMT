@@ -1,9 +1,21 @@
+# -*- coding: utf-8 -*-
+
+"""
+Module for storing rotor properties and calculation of induction factors and forces for the airfoil sections.
+"""
 import pandas as pd
 from configparser import NoOptionError
 from math import radians, degrees, sqrt, cos, sin, atan2, atan, pi, acos, exp
 from .airfoil import load_airfoil
 
-class Rotor: # struct of arrays instead of array of structs
+class Rotor: 
+    """
+    Holds rotor properties and a list of all airfoil sections.
+
+    :param configparser.SafeConfigParser cfg: Configuration object
+    :param string name: Name of rotor
+    :param string mode: Solver mode
+    """
     def __init__(self, cfg, name, mode):
         self.n_blades = cfg.getint(name, 'nblades')
         self.diameter = cfg.getfloat(name, 'diameter')
@@ -28,10 +40,22 @@ class Rotor: # struct of arrays instead of array of structs
         self.precalc()
 
     def precalc(self):
+        """
+        Calculation of properties before each solver run, to ensure all parameters are correct for parameter sweeps.
+
+        :return: None
+        """
         self.blade_radius = 0.5*self.diameter
         self.area = pi*self.blade_radius**2
 
     def sections_dataframe(self):
+        """
+        Creates a pandas DataFrame with all calculated section properties.
+
+        :return: DataFrame with section properties
+        :rtype: pd.DataFrame
+        """
+
         columns = ['radius','chord','pitch','Cl','Cd','dT','dQ','F','a','ap','Re']
         data = {}
         for param in columns:
@@ -42,6 +66,17 @@ class Rotor: # struct of arrays instead of array of structs
  
 
 class Section: 
+    """
+    Class for calculating induction factors and forces according to the BEM theory for a single airfoil section.
+
+    :param Airfoil airfoil: Airfoil of the section
+    :param float radius: Distance from center to mid of section
+    :param float width: Width of section
+    :param float pitch: Pitch angle in radians
+    :param float chord: Chord length of section
+    :param Rotor rotor: Rotor that section belongs to
+    :param string mode: Solver mode
+    """
     def __init__(self, airfoil, radius, width, pitch, chord, rotor, mode):
         self.airfoil = airfoil
         self.radius = radius
@@ -71,9 +106,27 @@ class Section:
         self.precalc()
         
     def precalc(self):
+        """
+        Calculation of properties before each solver run, to ensure all parameters are correct for parameter sweeps.
+
+        :return: None
+        """
         self.sigma = self.rotor.n_blades*self.chord/(2*pi*self.radius)
 
     def tip_loss(self, phi):
+        """
+        Prandtl tip loss factor, defined as
+
+        .. math::
+            F = \\frac{2}{\\pi}\cos^{-1}e^{-f} \\\\
+            f = \\frac{B}{2}\\frac{R-r}{r\\sin\\phi}
+
+        A hub loss is also caluclated in the same manner.
+
+        :param float phi: Inflow angle
+        :return: Combined tip and hub loss factor
+        :rtype: float
+        """
         def prandtl(dr, r, phi):
             f = self.rotor.n_blades*dr/(2*r*(sin(phi)))
             if (-f > 500): # exp can overflow for very large numbers
@@ -96,6 +149,21 @@ class Section:
  
                     
     def airfoil_forces(self, phi):
+        """
+        Force coefficients on an airfoil, decomposed in axial and tangential directions:
+
+        .. math::
+            C_T = C_l\\cos{\\phi} - CC_d\\sin{\\phi} \\\\
+            C_Q = C_l\\sin{\\phi} + CC_d\\cos{\\phi} \\\\
+
+        where drag and lift coefficients come from
+        airfoil tables.
+
+        :param float phi: Inflow angle
+        :return: Axial and tangential force coefficients
+        :rtype: tuple
+        """
+
         C = self.C
 
         alpha = C*(self.pitch - phi)
@@ -109,6 +177,20 @@ class Section:
         return CT, CQ
     
     def induction_factors(self, phi):
+        """
+        Calculation of axial and tangential induction factors,
+
+        .. math::
+            a = \\frac{1}{\\kappa - C} \\\\
+            a\' = \\frac{1}{\\kappa\' + C} \\\\
+            \\kappa = \\frac{4F\\sin^2{\\phi}}{\\sigma C_T} \\\\
+            \\kappa\' = \\frac{4F\\sin{\\phi}\\cos{\\phi}}{\\sigma C_Q} \\\\
+            
+        :param float phi: Inflow angle
+        :return: Axial and tangential induction factors
+        :rtype: tuple
+        """
+
         C = self.C
         
         F = self.tip_loss(phi)
@@ -124,6 +206,18 @@ class Section:
         return a, ap
         
     def func(self, phi, v_inf, omega):
+        """
+        Residual function used in root-finding functions to find the inflow angle for the current section.
+
+        .. math::
+            \\frac{\\sin\\phi}{1+Ca} - \\frac{V_\infty\\cos\\phi}{\Omega R (1 - Ca\')} = 0\\\\
+
+        :param float phi: Estimated inflow angle
+        :param float v_inf: Axial inflow velocity
+        :param float omega: Tangential rotational velocity
+        :return: Residual
+        :rtype: float
+        """
         # Function to solve for a single blade element
         C = self.C
 
@@ -137,6 +231,33 @@ class Section:
         return resid
     
     def forces(self, phi, v_inf, omega, fluid):
+        """
+        Calculation of axial and tangential forces (thrust and torque) on airfoil section. 
+
+        The definition of blade element theory is used,
+
+        .. math::
+            \\Delta T = \\sigma\\pi\\rho U^2C_T r\\Delta r \\\\
+            \\Delta Q = \\sigma\\pi\\rho U^2C_Q r^2\\Delta r \\\\
+            U = \\sqrt{v^2+v\'^2} \\\\
+            v = (1 + Ca)V_\infty \\\\
+            v\' = (1 - Ca\')\\Omega R \\\\
+
+        Note that this is equivalent to the momentum theory definition,
+
+        .. math::
+            \\Delta T = 4\\pi\\rho r V_\infty^2(1 + Ca)aF\\Delta r \\\\
+            \\Delta Q = 4\\pi\\rho r^3 V_\infty\Omega(1 + Ca)a\'F\\Delta r \\\\
+
+
+        :param float phi: Inflow angle
+        :param float v_inf: Axial inflow velocity
+        :param float omega: Tangential rotational velocity
+        :param Fluid fluid: Fluid 
+        :return: Axial and tangential forces
+        :rtype: tuple
+        """
+
         C = self.C
         r = self.radius
         rho = fluid.rho

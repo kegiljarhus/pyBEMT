@@ -10,7 +10,10 @@ and a quadratic function is built to interpolate between data in the airfoil tab
 This module can also be executed from the command-line to plot drag and lift coefficients 
 for a single airfoil, e.g. 
 
-    >>> python airfoil.py NACA_4412
+.. code-block:: console
+
+    python airfoil.py NACA_4412
+
 """
 
 import os

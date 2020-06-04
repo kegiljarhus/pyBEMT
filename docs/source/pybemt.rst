@@ -1,6 +1,14 @@
 pybemt
 ======
 
+pybemt.solver module
+--------------------
+
+.. automodule:: pybemt.solver
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pybemt.airfoil module
 ---------------------
 
@@ -9,10 +17,18 @@ pybemt.airfoil module
    :undoc-members:
    :show-inheritance:
 
-pybemt.solver module
+pybemt.rotor module
 --------------------
 
-.. automodule:: pybemt.solver
+.. automodule:: pybemt.rotor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pybemt.fluid module
+--------------------
+
+.. automodule:: pybemt.fluid
    :members:
    :undoc-members:
    :show-inheritance:

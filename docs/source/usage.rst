@@ -51,6 +51,7 @@ first rotor.
 --------
 
 Optional solver settings.
+
 - ``solver`` --- The default solver is a bisection solver. This can be replaced by a more stable brute force solver using 'brute' here.
 - ``Cs`` --- Slipstream coefficient for coaxial solver.
 
@@ -97,4 +98,20 @@ Running an optimization
 -----------------------
 
 Optimizaton of parameters can easily be done using the scipy.optimize
-library. Currently, 
+library. Currently, only optimization of pitch is supported directly by
+the library:
+
+.. code-block:: python
+
+        from pybemt.solver import Solver
+
+        s = Solver('rotor.ini')
+ 
+        pitches = s.optimize_pitch()
+
+The differential evolution algorithm is used in the current implementation,
+as it has been found to give the best results.  Each section is considered as
+a separate parameter for the optimization. Using a parameterized function instead can
+lead to significant speedups, but this is not currently directly supported
+by the package.
+

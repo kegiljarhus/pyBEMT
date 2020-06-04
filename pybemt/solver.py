@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Module for the solver class.
+"""
 
 import os
 import sys
@@ -12,11 +15,17 @@ from .rotor import Rotor
 
 
 class Solver: 
-    def __init__(self, config_file):
+    """
+    The Solver object loads the config file and contains functions for running a single simulation,
+    parameter sweeps and optimization.
+
+    :param string config_path: Path to config file
+    """
+    def __init__(self, config_path):
 
         # Read configuration file
         cfg = SafeConfigParser()
-        cfg.read(config_file)
+        cfg.read(config_path)
         
         # Case
         self.v_inf = cfg.getfloat('case', 'v_inf')
@@ -61,8 +70,23 @@ class Solver:
                 self.Cs = cfg.getfloat('solver','Cs')
        
     def rotor_coeffs(self, T, Q, P):
-        """ Calculate non-dimensional coefficients for rotor. 
+        """ 
+        Dimensionless coefficients for a rotor. 
+
+        .. math::
+            \\text{J} = \\frac{V_\infty}{nD} \\\\
+            C_T = \\frac{T}{\\rho n^2 D^4} \\\\
+            C_Q = \\frac{Q}{\\rho n^2 D^5} \\\\
+            C_P = 2\\pi C_Q \\\\
+            \\eta = \\frac{C_T}{C_P}J \\\\
+
+        :param float T: Thrust
+        :param float Q: Torque
+        :param float P: Power
+        :return: Advance ratio, thrust coefficient, torque coefficient, power coefficient and efficiency
+        :rtype: tuple
         """
+
         D = self.rotor.diameter
         R = 0.5*D
         rho = self.fluid.rho
@@ -82,6 +106,21 @@ class Solver:
         return J, CT, CQ, CP, eta
 
     def turbine_coeffs(self, T, Q, P):
+        """
+        Dimensionless coefficients for a turbine.
+
+        .. math::
+            \\text{TSR} = \\frac{\Omega R}{V_\infty} \\\\
+            C_T = \\frac{2T}{\\rho A V_\infty^2} \\\\
+            C_P = \\frac{2P}{\\rho A V_\infty^3} \\\\
+
+        :param float T: Thrust
+        :param float Q: Torque
+        :param float P: Power
+        :return: Tip-speed ratio, power coefficient and thrust coefficient
+        :rtype: tuple
+        """
+
         rho = self.fluid.rho
         V = self.v_inf
         omega = self.rpm*2*pi/60.0
@@ -93,7 +132,17 @@ class Solver:
 
         
     def run_sweep(self, parameter, n, low, high):
-        """Utility function to run a sweep of a single parameter."""
+        """
+        Utility function to run a sweep of a single parameter.
+
+        :param string parameter: Parameter to sweep, must be a member of the Solver class.
+        :param int n: Number of runs
+        :param float low: Minimum parameter value
+        :param float high: Maximum parameter value
+
+        :return: DataFrame of results and list of sections for each run
+        :rtype: tuple
+        """
 
         if self.mode == 'turbine':
             df = pd.DataFrame(columns = [parameter, 'T', 'Q', 'P', 'TSR', 'CT', 'CP'], index=range(n))
@@ -130,6 +179,17 @@ class Solver:
         return df, sections
     
     def solve(self, rotor, rpm, v_inflow, r_inflow):
+        """
+        Find inflow angle and calculate forces for a single rotor given rotational speed, inflow velocity and radius.
+
+        :param Rotor rotor: Rotor to solve for
+        :param float rpm: Rotations per minute
+        :param float v_inflow: Inflow velocity
+        :param float r_inflow: Inflow radius (equal to blade radius for single rotors)
+        :return: Calculated thrust, torque and power for the rotor
+        :rtype: tuple
+        """
+
         rotor.precalc()
 
         omega = rpm*2*pi/60.0
@@ -167,7 +227,17 @@ class Solver:
         return T, Q, P
 
     def slipstream(self):
-        # Slipstream properties
+        """
+        For coaxial calculations. Calculates slipstream radius and velocity for the upper rotor according to
+        momentum theory. Currently only the static case is included.
+
+        .. math::
+            r_s = \\frac{R}{\\sqrt{2}} \\\\
+            v_s = C_s\\sqrt{\\frac{2 T}{\\rho A}} \\\\
+
+        :return: Radius and velocity of the slipstream
+        :rtype: tuple
+        """
 
         r_s = self.rotor.blade_radius/sqrt(2.0)
         v_s = self.Cs*sqrt(2*self.T/(self.fluid.rho*self.rotor.area))
@@ -176,6 +246,12 @@ class Solver:
 
  
     def run(self):
+        """
+        Runs the solver, i.e. finds the forces for each rotor.
+
+        :return: Calculated thrust, torque, power and DataFrame with properties for all sections.
+        :rtype: tuple
+        """
         self.T, self.Q, self.P = self.solve(self.rotor, self.rpm, self.v_inf, self.rotor.diameter)
        
         print('--- Results ---')
@@ -203,6 +279,13 @@ class Solver:
         """ 
         Solve by a simple brute force procedure, iterating through all
         possible angles and selecting the one with lowest residual.
+
+        :param Section sec: Section to solve for
+        :param float v: Axial inflow velocity
+        :param float omega: Tangential rotational velocity
+        :param int n: Number of angles to test for, optional
+        :return: Inflow angle with lowest residual
+        :rtype: float
         """
         resid = np.zeros(n)
         phis = np.linspace(-0.9*np.pi,0.9*np.pi,n)

@@ -13,14 +13,15 @@ Notable features:
 - A small and unified implementation for both propellers and turbines
 - A model for coaxial rotors
 - Optimization of rotor parameters
-- Simple addition of new airfoils
 
 Installation
 ------------
 
 The package can be installed using pythontools:
 
-        >>> python setup.py install
+.. code-block:: console
+
+        python setup.py install
 
 Or by ensuring that the pybemt directory is in the PYTHONPATH.
 
