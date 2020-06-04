@@ -22,7 +22,7 @@ class TestAirfoil(unittest.TestCase):
         degs = [-270,360,450,540,720]
         rads_correct = [pi/2,0,pi/2,pi,0]
         for alpha,alpha2 in zip(degs, rads_correct):
-            self.assertAlmostEqual(alpha2, self.a.normalize_angle(radians(alpha)), places=5)
+            self.assertAlmostEqual(alpha2, self.a._normalize_angle(radians(alpha)), places=5)
 
     def test_drag(self):
         """
