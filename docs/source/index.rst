@@ -45,6 +45,11 @@ Theory
 For a description of the BEMT method and its implementation in pyBEMT,
 see the :ref:`theory chapter.<Theory>`
 
+License
+-------
+
+This software is released under the MIT license. See the LICENSE file for license rights and limitations.
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents
