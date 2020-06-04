@@ -104,8 +104,8 @@ class TestSection(unittest.TestCase):
         # Calculating forces using momentum theory should give same results as the implemented blade element theory
         dT, dQ = self.sec.forces(self.phi, self.v, self.omega, self.fluid)
 
-        dTmom = 4*pi*self.fluid.rho*self.sec.radius*self.v**2*(1 + self.a)*self.a*self.F*self.sec.width
-        dQmom = 4*pi*self.fluid.rho*self.sec.radius**3*self.v*(1 + self.a)*self.ap*self.omega*self.F*self.sec.width
+        dTmom = 4*pi*self.fluid.rho*self.sec.radius*self.v**2*(1 + self.sec.C*self.a)*self.a*self.F*self.sec.width
+        dQmom = 4*pi*self.fluid.rho*self.sec.radius**3*self.v*(1 + self.sec.C*self.a)*self.ap*self.omega*self.F*self.sec.width
 
         self.assertAlmostEqual(dTmom, dT)
         self.assertAlmostEqual(dQmom, dQ)
