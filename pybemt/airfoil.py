@@ -41,7 +41,7 @@ class Airfoil:
         
     def _normalize_angle(self, alpha):
         """
-        Ensure that the angle fulfils :math:`\pi < \alpha < \pi`
+        Ensure that the angle fulfils :math:`\\pi < \\alpha < \\pi`
 
         :param float alpha: Angle in radians
         :return: Normalized angle

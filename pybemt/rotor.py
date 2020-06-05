@@ -118,7 +118,7 @@ class Section:
         Prandtl tip loss factor, defined as
 
         .. math::
-            F = \\frac{2}{\\pi}\cos^{-1}e^{-f} \\\\
+            F = \\frac{2}{\\pi}\\cos^{-1}e^{-f} \\\\
             f = \\frac{B}{2}\\frac{R-r}{r\\sin\\phi}
 
         A hub loss is also caluclated in the same manner.
@@ -210,7 +210,7 @@ class Section:
         Residual function used in root-finding functions to find the inflow angle for the current section.
 
         .. math::
-            \\frac{\\sin\\phi}{1+Ca} - \\frac{V_\infty\\cos\\phi}{\Omega R (1 - Ca\')} = 0\\\\
+            \\frac{\\sin\\phi}{1+Ca} - \\frac{V_\\infty\\cos\\phi}{\\Omega R (1 - Ca\')} = 0\\\\
 
         :param float phi: Estimated inflow angle
         :param float v_inf: Axial inflow velocity
@@ -240,14 +240,14 @@ class Section:
             \\Delta T = \\sigma\\pi\\rho U^2C_T r\\Delta r \\\\
             \\Delta Q = \\sigma\\pi\\rho U^2C_Q r^2\\Delta r \\\\
             U = \\sqrt{v^2+v\'^2} \\\\
-            v = (1 + Ca)V_\infty \\\\
+            v = (1 + Ca)V_\\infty \\\\
             v\' = (1 - Ca\')\\Omega R \\\\
 
         Note that this is equivalent to the momentum theory definition,
 
         .. math::
-            \\Delta T = 4\\pi\\rho r V_\infty^2(1 + Ca)aF\\Delta r \\\\
-            \\Delta Q = 4\\pi\\rho r^3 V_\infty\Omega(1 + Ca)a\'F\\Delta r \\\\
+            \\Delta T = 4\\pi\\rho r V_\\infty^2(1 + Ca)aF\\Delta r \\\\
+            \\Delta Q = 4\\pi\\rho r^3 V_\\infty\\Omega(1 + Ca)a\'F\\Delta r \\\\
 
 
         :param float phi: Inflow angle

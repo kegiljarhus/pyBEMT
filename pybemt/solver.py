@@ -74,7 +74,7 @@ class Solver:
         Dimensionless coefficients for a rotor. 
 
         .. math::
-            \\text{J} = \\frac{V_\infty}{nD} \\\\
+            \\text{J} = \\frac{V_\\infty}{nD} \\\\
             C_T = \\frac{T}{\\rho n^2 D^4} \\\\
             C_Q = \\frac{Q}{\\rho n^2 D^5} \\\\
             C_P = 2\\pi C_Q \\\\
@@ -110,9 +110,9 @@ class Solver:
         Dimensionless coefficients for a turbine.
 
         .. math::
-            \\text{TSR} = \\frac{\Omega R}{V_\infty} \\\\
-            C_T = \\frac{2T}{\\rho A V_\infty^2} \\\\
-            C_P = \\frac{2P}{\\rho A V_\infty^3} \\\\
+            \\text{TSR} = \\frac{\\Omega R}{V_\\infty} \\\\
+            C_T = \\frac{2T}{\\rho A V_\\infty^2} \\\\
+            C_P = \\frac{2P}{\\rho A V_\\infty^3} \\\\
 
         :param float T: Thrust
         :param float Q: Torque
