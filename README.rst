@@ -29,14 +29,26 @@ The package requires the following libraries:
 
 - numpy
 - scipy
+- matplotlib
 - pandas
 - sphinx (for documentation)
+
+These can be installed using the provided ``requirements.txt``,
+
+.. code-block:: console
+
+        pip install -r requirements.txt
 
 Documentation
 -------------
 
 Examples on how to use the package are given in the examples directory.
 Documentation is hosted on https://pybemt.readthedocs.io/ 
+
+Contributions
+-------------
+
+Contributions are encouraged via pull requests, feature requests and bug reports on GitHub. 
 
 License
 -------

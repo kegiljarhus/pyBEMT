@@ -30,8 +30,22 @@ The package requires the following libraries:
 
 - numpy
 - scipy
+- matplotlib
 - pandas
 - sphinx (for building the documentation)
+
+These can be installed using the provided ``requirements.txt``,
+
+.. code-block:: console
+
+        pip install -r requirements.txt
+
+Testing is done using the ``unittest`` module. To run the tests, enter the tests
+directory after installing the package and run
+
+.. code-block:: console
+
+        python -m unittest
 
 Examples
 --------
@@ -45,6 +59,11 @@ Theory
 
 For a description of the BEMT method and its implementation in pyBEMT,
 see the :ref:`theory chapter.<Theory>`
+
+Contributions
+-------------
+
+Contributions are encouraged via pull requests, feature requests and bug reports on GitHub. 
 
 License
 -------
