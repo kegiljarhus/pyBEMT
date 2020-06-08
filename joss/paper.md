@@ -39,16 +39,16 @@ simulation software `OpenFAST`[@OpenFAST:2020], and the
 `QBlade` has later been forked to develop `JBLADE`[@silvestre2013jblade:2013],
 a software focusing on propeller design.
 
-`pyBEMT` is a unified implementation of the blade element theory, supporting
-both propellers and turbines. The software is designed as a stand-alone Python
-implementation with emphasis on readability and extensibility.  Its modular
-design and permissive license also makes it suitable for integration into other
-simulation tools. Other notable features of the package are a model for coaxial
-rotors and optimization of rotor parameters using the differential evolution
-algorithm in `SciPy`. `pyBEMT` is currently applied in research projects on
-rotor design for unmanned aerial vehicles and turbine design for tidal stream
-turbines, as well as used in education within fluid dynamics and computational
-engineering.  
+`pyBEMT` is a unified implementation of the blade element moomentum theory,
+supporting both propellers and turbines. The software is designed as a
+stand-alone Python implementation with emphasis on readability and
+extensibility.  Its modular design and permissive license also makes it
+suitable for integration into other simulation tools. Other notable features of
+the package are a model for coaxial rotors and optimization of rotor parameters
+using the differential evolution algorithm in `SciPy`. `pyBEMT` is currently
+applied in research projects on rotor design for unmanned aerial vehicles and
+turbine design for tidal stream turbines, as well as used in education within
+fluid dynamics and computational engineering.  
 
 # Acknowledgements
 
