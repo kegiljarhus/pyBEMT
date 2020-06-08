@@ -13,8 +13,7 @@ authors:
     orcid: 0000-0002-4144-0454 
     affiliation: 1
 affiliations:
- - name: Department of Mechanical and Structural Engineering and Materials Science,
-	 University of Stavanger, Stavanger, Norway
+ - name: Department of Mechanical and Structural Engineering and Materials Science, University of Stavanger, Stavanger, Norway
    index: 1
 date: 04 June 2020
 bibliography: paper.bib
