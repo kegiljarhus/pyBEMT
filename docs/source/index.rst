@@ -76,6 +76,7 @@ This software is released under the MIT license. See the LICENSE file for licens
 
    theory
    usage
+   validation
 
 .. toctree::
    :maxdepth: 1
