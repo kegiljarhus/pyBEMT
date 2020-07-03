@@ -33,8 +33,8 @@ methods[@gohard1978free], the blade element momentum theory is still considered
 relevant for the study of rotor design. Its simple formulation lends itself to
 use in education and to quickly analyse new ideas. As examples of recent uses
 of BEMT, it was used by @kotwicz2019rotor to compare airfoils and blade
-shapes for a UAV rotorcraft and by @borg2020 together with computational
-fluid dynamics to analyze the performance of a high-solidity tidal turbine
+shapes for an unmanned rotorcraft and by @borg2020, together with computational
+fluid dynamics, to analyze the performance of a high-solidity tidal turbine
 design. Several open-source packages include an implementation of BEMT, for
 instance the `AeroDyn`[@moriarty2005aerodyn] solver used in the whole-turbine
 simulation software `OpenFAST`[@OpenFAST], and the `QBlade`[@marten2013qblade]
