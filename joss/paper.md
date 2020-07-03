@@ -15,7 +15,7 @@ authors:
 affiliations:
  - name: Department of Mechanical and Structural Engineering and Materials Science, University of Stavanger, Stavanger, Norway
    index: 1
-date: 04 June 2020
+date: 03 July 2020
 bibliography: paper.bib
 ---
 
@@ -38,20 +38,24 @@ fluid dynamics to analyze the performance of a high-solidity tidal turbine
 design. Several open-source packages include an implementation of BEMT, for
 instance the `AeroDyn`[@moriarty2005aerodyn] solver used in the whole-turbine
 simulation software `OpenFAST`[@OpenFAST], and the `QBlade`[@marten2013qblade]
-software for wind turbine blade design.  `QBlade` has later been forked to
+software for wind turbine blade design. `QBlade` has later been forked to
 develop `JBLADE`[@silvestre2013jblade], a software focusing on propeller
 design. 
 
-`pyBEMT` is a unified implementation of the blade element momentum theory,
-supporting both propellers and turbines. Figure \autoref{fig:example} shows two
-examples of predictions from the model for a tidal stream
-turbine[@bahaj2007power] and an airplane
-propeller[@theodorsen1937characteristics], respectively.  The software is
-designed as a stand-alone Python implementation with emphasis on readability
-and extensibility. Its modular design and permissive license also makes it
-suitable for integration into other simulation tools. Other notable features of
-the package are a model for coaxial rotors and optimization of rotor parameters
-using the differential evolution algorithm in `SciPy`. `pyBEMT` is currently
+`pyBEMT` is unique in that it offers a unified implementation of the blade
+element momentum theory, supporting both propellers and turbines. This is of
+particular interest in education, to demonstrate the similarities between these
+two domains. The software is designed as a stand-alone Python implementation
+with emphasis on readability and extensibility. Its modular design and
+permissive license also makes it suitable for integration into other simulation
+tools. Other notable features of the package are a model for coaxial rotors and
+optimization of rotor parameters using the differential evolution algorithm in
+`SciPy`. The use of coaxial rotor systems has recently seen renewed interest 
+with the growth in unmanned aerial vehicles and autonomous systems.
+
+Figure \autoref{fig:example} shows two examples of predictions from the model
+for a tidal stream turbine[@bahaj2007power] and an airplane
+propeller[@theodorsen1937characteristics], respectively. `pyBEMT` is currently
 applied in research projects on rotor design for unmanned aerial vehicles and
 turbine design for tidal stream turbines, as well as used in education within
 fluid dynamics and computational engineering.  
