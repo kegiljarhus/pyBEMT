@@ -30,6 +30,10 @@ class Solver:
         # Case
         self.v_inf = cfg.getfloat('case', 'v_inf')
         self.rpm = cfg.getfloat('case', 'rpm')
+        if cfg.has_option('case', 'twist'):
+            self.twist = cfg.getfloat('case', 'twist')
+        else:
+            self.twist = 0.0
         if cfg.has_option('case', 'coaxial'):
             self.coaxial = cfg.getboolean('case', 'coaxial')
         else:
@@ -55,6 +59,10 @@ class Solver:
         # Coaxial
         if self.coaxial:
             self.rpm2 = cfg.getfloat('case','rpm2')
+            if cfg.has_option('case', 'twist2'):
+                self.twist2 = cfg.getfloat('case', 'twist2')
+            else:
+                self.twist2 = 0.0
             self.rotor2 = Rotor(cfg, 'rotor2', self.mode)
             self.zD = cfg.getfloat('case','dz')/self.rotor.diameter
             self.T2 = 0
@@ -178,11 +186,12 @@ class Solver:
         
         return df, sections
     
-    def solve(self, rotor, rpm, v_inflow, r_inflow):
+    def solve(self, rotor, twist, rpm, v_inflow, r_inflow):
         """
         Find inflow angle and calculate forces for a single rotor given rotational speed, inflow velocity and radius.
 
         :param Rotor rotor: Rotor to solve for
+        :param float twist: Angle to adjust rotor pitch
         :param float rpm: Rotations per minute
         :param float v_inflow: Inflow velocity
         :param float r_inflow: Inflow radius (equal to blade radius for single rotors)
@@ -190,7 +199,7 @@ class Solver:
         :rtype: tuple
         """
 
-        rotor.precalc()
+        rotor.precalc(twist)
 
         omega = rpm*2*pi/60.0
         # Axial momentum (thrust)
@@ -252,7 +261,7 @@ class Solver:
         :return: Calculated thrust, torque, power and DataFrame with properties for all sections.
         :rtype: tuple
         """
-        self.T, self.Q, self.P = self.solve(self.rotor, self.rpm, self.v_inf, self.rotor.diameter)
+        self.T, self.Q, self.P = self.solve(self.rotor, self.twist, self.rpm, self.v_inf, self.rotor.diameter)
        
         print('--- Results ---')
         print('Trust (N):\t',self.T)
@@ -263,7 +272,7 @@ class Solver:
         if self.coaxial:
             self.r_s, self.v_s = self.slipstream()
            
-            self.T2, self.Q2, self.P2 = self.solve(self.rotor2, self.rpm2, self.v_s, self.r_s)
+            self.T2, self.Q2, self.P2 = self.solve(self.rotor2, self.twist2, self.rpm2, self.v_s, self.r_s)
 
             print('Trust 2 (N):\t',self.T2)
             print('Torque 2 (Nm):\t',self.Q2)

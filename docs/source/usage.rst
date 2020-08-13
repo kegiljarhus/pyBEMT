@@ -19,8 +19,10 @@ Each section and available parameters are described below.
 
 - ``v_inf`` --- The inflow velocity in m/s.
 - ``rpm`` --- Rotational speed of the rotor in rotations per minute.
-- ``coaxial`` --- Whether to add a second rotor.
+- ``twist`` --- Optional global pitch change in degrees.
+- ``coaxial`` --- Whether to add a second rotor. Set to False by default.
 - ``rpm2`` --- Rotational speed of the second rotor in rotations per minute.
+- ``twist2`` --- Optional global pitch change of the second rotor in degrees.
 - ``dz`` --- Distance to second rotor.
 
 [rotor]

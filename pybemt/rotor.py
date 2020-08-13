@@ -37,9 +37,9 @@ class Rotor:
         
         self.radius_hub = cfg.getfloat(name,'radius_hub')
 
-        self.precalc()
+        self.precalc(twist=0.0)
 
-    def precalc(self):
+    def precalc(self, twist):
         """
         Calculation of properties before each solver run, to ensure all parameters are correct for parameter sweeps.
 
@@ -47,6 +47,11 @@ class Rotor:
         """
         self.blade_radius = 0.5*self.diameter
         self.area = pi*self.blade_radius**2
+
+        # Apply twist
+        for i,sec in enumerate(self.sections):
+            sec.pitch = radians(self.alpha[i] + twist)
+
 
     def sections_dataframe(self):
         """

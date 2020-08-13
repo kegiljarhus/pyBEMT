@@ -4,7 +4,7 @@ from configparser import SafeConfigParser
 from pybemt.rotor import Rotor, Section
 from pybemt.airfoil import load_airfoil
 from pybemt.fluid import Fluid
-from math import pi
+from math import pi,radians
 from scipy import optimize
 
 class TestRotor(unittest.TestCase):
@@ -22,9 +22,12 @@ class TestRotor(unittest.TestCase):
     def test_precalc(self):
         self.rotor.blade_radius = 0.0
         self.rotor.area = 0.0
-        self.rotor.precalc()
+        twist = 1.0
+        self.rotor.precalc(twist=twist)
         self.assertEqual(0.4, self.rotor.blade_radius)
         self.assertAlmostEqual(0.50265482, self.rotor.area, places=8)
+        self.assertAlmostEqual(radians(19.6+twist), self.rotor.sections[0].pitch, places=8)
+        self.assertAlmostEqual(radians(twist), self.rotor.sections[-1].pitch, places=8)
 
     def test_dataframe(self):
         df = self.rotor.sections_dataframe()
