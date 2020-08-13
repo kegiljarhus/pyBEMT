@@ -18,27 +18,30 @@ Notable features:
 Installation
 ------------
 
-The package can be installed using setuptools:
-
-.. code-block:: console
-
-        python setup.py install
-
-Or by ensuring that the pybemt directory is in the PYTHONPATH.
-
-The package requires the following libraries:
+To install the package, first ensure that the following required libraries are installed:
 
 - numpy
 - scipy
 - matplotlib
 - pandas
-- sphinx (for building the documentation)
+- sphinx (for documentation)
 
 These can be installed using the provided ``requirements.txt``,
 
 .. code-block:: console
 
         pip install -r requirements.txt
+
+Next, the package can be installed using pythontools:
+
+.. code-block:: console
+
+        python setup.py install
+
+Alternatively, just add the pybemt directory to the PYTHONPATH.
+
+Tests
+-----
 
 Testing is done using the ``unittest`` module. To run the tests, enter the tests
 directory after installing the package and run
