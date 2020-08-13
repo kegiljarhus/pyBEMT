@@ -2,7 +2,7 @@
 import unittest
 from pybemt.solver import Solver
 
-class TestRotor(unittest.TestCase):
+class TestSolver(unittest.TestCase):
     def setUp(self):
 
         self.solver = Solver('test_config.ini')
