@@ -117,3 +117,20 @@ a separate parameter for the optimization. Using a parameterized function instea
 lead to significant speedups, but this is not currently directly supported
 by the package.
 
+
+Adding a new airfoil
+--------------------
+
+pyBEMT uses the same file format as the AeroDyn software. However, note 
+that currently only the drag and lift tables are used and only a single 
+Reynolds number is supported.
+
+To add a new airfoil, either add the file to the airfoils directory and 
+re-install the software or add the airfoil file directly to the installed
+airfoils directory. The installation location can be found by running
+the following code snippet: ::
+
+        import os
+        import pybemt
+        print(os.path.dirname(pybemt.__file__))
+
