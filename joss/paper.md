@@ -29,17 +29,17 @@ of these machines. The blade element momentum theory (BEMT) is one such method
 with a long history dating back to @glauert1935airplane.  
 
 Despite the development of more sophisticated methods, such as vortex
-methods[@gohard1978free], the blade element momentum theory is still considered
+methods [@gohard1978free], the blade element momentum theory is still considered
 relevant for the study of rotor design. Its simple formulation lends itself to
 use in education and to quickly analyse new ideas. As examples of recent uses
 of BEMT, it was used by @kotwicz2019rotor to compare airfoils and blade
 shapes for an unmanned rotorcraft and by @borg2020, together with computational
 fluid dynamics, to analyze the performance of a high-solidity tidal turbine
 design. Several open-source packages include an implementation of BEMT, for
-instance the `AeroDyn`[@moriarty2005aerodyn] solver used in the whole-turbine
-simulation software `OpenFAST`[@OpenFAST], and the `QBlade`[@marten2013qblade]
+instance the `AeroDyn` [@moriarty2005aerodyn] solver used in the whole-turbine
+simulation software `OpenFAST`[@OpenFAST], and the `QBlade` [@marten2013qblade]
 software for wind turbine blade design. `QBlade` has later been forked to
-develop `JBLADE`[@silvestre2013jblade], a software focusing on propeller
+develop `JBLADE` [@silvestre2013jblade], a software focusing on propeller
 design. 
 
 `pyBEMT` is unique in that it offers a unified implementation of the blade
@@ -53,9 +53,9 @@ optimization of rotor parameters using the differential evolution algorithm in
 `SciPy`. The use of coaxial rotor systems has recently seen renewed interest 
 with the growth in unmanned aerial vehicles and autonomous systems.
 
-Figure \autoref{fig:example} shows two examples of predictions from the model
-for a tidal stream turbine[@bahaj2007power] and an airplane
-propeller[@theodorsen1937characteristics], respectively. `pyBEMT` is currently
+\autoref{fig:example} shows two examples of predictions from the model
+for a tidal stream turbine [@bahaj2007power] and an airplane
+propeller [@theodorsen1937characteristics], respectively. `pyBEMT` is currently
 applied in research projects on rotor design for unmanned aerial vehicles and
 turbine design for tidal stream turbines, as well as used in education within
 fluid dynamics and computational engineering.  
