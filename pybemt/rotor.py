@@ -61,7 +61,7 @@ class Rotor:
         :rtype: pd.DataFrame
         """
 
-        columns = ['radius','chord','pitch','Cl','Cd','dT','dQ','F','a','ap','Re']
+        columns = ['radius','chord','pitch','Cl','Cd','dT','dQ','F','a','ap','Re','AoA']
         data = {}
         for param in columns:
             array = [getattr(sec, param) for sec in self.sections]
@@ -102,6 +102,7 @@ class Section:
         self.ap=0.0
         self.Re = 0.0
         self.alpha = 0.0
+        self.AoA = 0.0
         self.dT = 0.0
         self.dQ = 0.0
         self.F = 0.0
@@ -178,6 +179,10 @@ class Section:
                 
         CT = Cl*cos(phi) - C*Cd*sin(phi)
         CQ = Cl*sin(phi) + C*Cd*cos(phi)
+
+        self.AoA = degrees(alpha)
+        self.Cl = float(Cl)
+        self.Cd = float(Cd)
         
         return CT, CQ
     
