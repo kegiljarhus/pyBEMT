@@ -152,8 +152,42 @@ class Section:
             
         self.F = F
         return F
- 
-                    
+    
+    def stall_delay_model(self, phi, alpha, Cl, Cd):
+        """
+        The 3D correction model based on Chaviaropoulos and Hansen ref:
+        
+        .. bib::
+            @article{chaviaropoulos2000investigating,
+                     title={Investigating three-dimensional and rotational effects on wind turbine blades by means of a quasi-3D Navier-Stokes solver},
+                     author={Chaviaropoulos, PK and Hansen, Martin OL},
+                     journal={J. Fluids Eng.},
+                     volume={122},
+                     number={2},
+                     pages={330--336},
+                     year={2000}
+                     }
+
+        .. math::
+            Cl_3D = Cl_2D + a (c / r)^h \cos^n{twist} (Cl_inv - Cl_2d) \\
+            Cl_inv = \sqrt{Cl_2d^2 + Cd^2}
+        where:
+        a = 2.2, h = 1.3 and n = 4
+
+        :param float phi: Inflow angle
+        :return: Lift coefficient with 3D correction
+        :rtype: float
+        """
+        Cl_inv = sqrt(Cl**2+Cd**2)
+        twist = alpha - self.pitch
+        r = self.radius - self.rotor.radius_hub
+        c = self.chord
+        
+        a = 2.2
+        h = 1.3
+        n = 4
+        return Cl + a * (c / r) ** h * (cos(twist)) ** n * (Cl_inv - Cl)
+                
     def airfoil_forces(self, phi):
         """
         Force coefficients on an airfoil, decomposed in axial and tangential directions:
